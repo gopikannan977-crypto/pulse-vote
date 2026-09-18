@@ -1,0 +1,2209 @@
+<!DOCTYPE html>
+<html lang="en" data-accent="green">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYBER_OS // Developer Portfolio &amp; Terminal Dossier</title>
+  <meta name="description" content="Next-generation Hacker OS &amp; Cyberpunk Terminal Portfolio featuring interactive CLI, project showcase, system diagnostics, and telemetry.">
+  
+  <!-- Fonts: Bebas Neue, JetBrains Mono, Oxanium -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Oxanium:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       CYBER_OS THEME ENGINE & DESIGN TOKENS
+       ========================================================================== */
+    :root {
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-tech: 'Oxanium', monospace, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+
+      /* Base Palette - Deep Space & Charcoal Hacker OLED */
+      --bg-void: #030608;
+      --bg-base: #060b0e;
+      --bg-panel: rgba(10, 18, 24, 0.78);
+      --bg-card: rgba(14, 25, 33, 0.85);
+      --bg-card-hover: rgba(19, 35, 46, 0.95);
+      --bg-glass: rgba(8, 15, 20, 0.65);
+      --border-dim: #13242e;
+      --border-subtle: #1c3847;
+
+      /* Primary Default: Neon Green */
+      --neon-green: #00ff66;
+      --neon-green-glow: rgba(0, 255, 102, 0.45);
+      --neon-green-dim: rgba(0, 255, 102, 0.12);
+
+      /* Cyan Accent */
+      --neon-cyan: #00f0ff;
+      --neon-cyan-glow: rgba(0, 240, 255, 0.45);
+      --neon-cyan-dim: rgba(0, 240, 255, 0.12);
+
+      /* Amber Accent */
+      --neon-amber: #ffb000;
+      --neon-amber-glow: rgba(255, 176, 0, 0.45);
+      --neon-amber-dim: rgba(255, 176, 0, 0.12);
+
+      /* Warning / Danger */
+      --neon-red: #ff3366;
+      --neon-red-glow: rgba(255, 51, 102, 0.4);
+
+      /* Dynamic Accent Target */
+      --accent: var(--neon-green);
+      --accent-glow: var(--neon-green-glow);
+      --accent-dim: var(--neon-green-dim);
+      --accent-rgb: 0, 255, 102;
+
+      --text-main: #dcf5ff;
+      --text-muted: #7296a6;
+      --text-dark: #375362;
+
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+
+      --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-smooth: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Theme Overrides via data-accent */
+    [data-accent="cyan"] {
+      --accent: var(--neon-cyan);
+      --accent-glow: var(--neon-cyan-glow);
+      --accent-dim: var(--neon-cyan-dim);
+      --accent-rgb: 0, 240, 255;
+    }
+    [data-accent="amber"] {
+      --accent: var(--neon-amber);
+      --accent-glow: var(--neon-amber-glow);
+      --accent-dim: var(--neon-amber-dim);
+      --accent-rgb: 255, 176, 0;
+    }
+
+    /* Reset & Base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg-void);
+      color: var(--text-main);
+      font-family: var(--font-tech);
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body {
+      min-height: 100vh;
+      position: relative;
+      background: radial-gradient(circle at 50% 0%, #0d1e29 0%, #060b0e 45%, #030608 100%);
+      background-attachment: fixed;
+      cursor: crosshair;
+    }
+
+    /* Background Cyber Grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(to right, rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0, 255, 102, 0.03) 1px, transparent 1px);
+      background-size: 36px 36px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Scanlines Overlay */
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+      background-size: 100% 4px;
+      z-index: 998;
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    /* Vignette Glow */
+    .vignette {
+      position: fixed;
+      inset: 0;
+      box-shadow: inset 0 0 140px rgba(0, 0, 0, 0.92);
+      pointer-events: none;
+      z-index: 997;
+    }
+
+    /* Canvas for Digital Matrix Rain */
+    #matrix-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.16;
+      mix-blend-mode: screen;
+    }
+
+    /* Typography & Headers */
+    h1, h2, h3, h4, .font-display {
+      font-family: var(--font-display);
+      letter-spacing: 2px;
+      font-weight: 400;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      font-size: 2.8rem;
+      line-height: 1.1;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+      color: #fff;
+    }
+
+    h2 .section-tag {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      padding: 3px 10px;
+      border-radius: 2px;
+      letter-spacing: 1px;
+    }
+
+    .font-mono {
+      font-family: var(--font-mono);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      transition: all var(--transition-fast);
+    }
+    a:hover {
+      text-shadow: 0 0 8px var(--accent-glow);
+    }
+
+    /* ==========================================================================
+       TOP OS STATUS BAR & NAV HUD
+       ========================================================================== */
+    .os-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      height: 54px;
+      background: rgba(5, 10, 14, 0.88);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .os-topbar::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .os-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-display);
+      font-size: 1.6rem;
+      color: #ffffff;
+      letter-spacing: 2px;
+    }
+
+    .os-brand-badge {
+      width: 12px;
+      height: 12px;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+      animation: pulse-diamond 2s infinite ease-in-out;
+    }
+
+    @keyframes pulse-diamond {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.3); opacity: 1; }
+    }
+
+    .system-status {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      border-left: 1px solid var(--border-subtle);
+      padding-left: 16px;
+      display: flex;
+      gap: 14px;
+    }
+
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot-live {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--neon-green);
+      box-shadow: 0 0 6px var(--neon-green);
+    }
+
+    .topbar-nav {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .nav-link {
+      font-family: var(--font-tech);
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      position: relative;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all var(--transition-fast);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-link.active {
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Accent Palette Switcher */
+    .palette-toggle {
+      display: flex;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      padding: 3px 6px;
+      gap: 6px;
+    }
+
+    .color-btn {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      transition: transform var(--transition-fast);
+    }
+
+    .color-btn:hover { transform: scale(1.25); }
+    .color-btn.green { background: var(--neon-green); box-shadow: 0 0 6px var(--neon-green); }
+    .color-btn.cyan { background: var(--neon-cyan); box-shadow: 0 0 6px var(--neon-cyan); }
+    .color-btn.amber { background: var(--neon-amber); box-shadow: 0 0 6px var(--neon-amber); }
+
+    .btn-icon {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      padding: 6px 10px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .btn-icon:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-dim);
+    }
+
+    /* ==========================================================================
+       MAIN CONTAINER & LAYOUT
+       ========================================================================== */
+    .os-container {
+      max-width: 1360px;
+      margin: 0 auto;
+      padding: 36px 24px 80px;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Cyber Chamfer Card Utility */
+    .cyber-card {
+      background: var(--bg-panel);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-md);
+      position: relative;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5);
+      transition: all var(--transition-smooth);
+    }
+
+    .cyber-card:hover {
+      border-color: var(--border-subtle);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .corner-decor {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-color: var(--accent);
+      pointer-events: none;
+    }
+    .corner-decor.tl { top: -1px; left: -1px; border-top: 2px solid; border-left: 2px solid; }
+    .corner-decor.tr { top: -1px; right: -1px; border-top: 2px solid; border-right: 2px solid; }
+    .corner-decor.bl { bottom: -1px; left: -1px; border-bottom: 2px solid; border-left: 2px solid; }
+    .corner-decor.br { bottom: -1px; right: -1px; border-bottom: 2px solid; border-right: 2px solid; }
+
+    /* ==========================================================================
+       HERO / SYSTEM INITIALIZATION
+       ========================================================================== */
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 28px;
+      margin-bottom: 48px;
+    }
+
+    .hero-main {
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border: 1px solid var(--border-subtle);
+      background: linear-gradient(135deg, rgba(14, 25, 33, 0.9) 0%, rgba(6, 12, 16, 0.85) 100%);
+    }
+
+    .hero-pretitle {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+      background: var(--accent-dim);
+      border: 1px solid var(--accent);
+      padding: 4px 12px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+      width: fit-content;
+    }
+
+    .hero-name {
+      font-size: 5rem;
+      line-height: 0.92;
+      margin-bottom: 16px;
+      background: linear-gradient(180deg, #ffffff 40%, var(--text-muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 25px rgba(255, 255, 255, 0.12);
+    }
+
+    .hero-title-typewriter {
+      font-family: var(--font-mono);
+      font-size: 1.3rem;
+      color: var(--neon-cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      min-height: 28px;
+    }
+
+    .cursor-blink {
+      display: inline-block;
+      width: 9px;
+      height: 1.2rem;
+      background: var(--accent);
+      animation: blink 0.9s infinite;
+    }
+
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      line-height: 1.7;
+      margin-bottom: 28px;
+      max-width: 620px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .btn-cyber {
+      background: var(--accent);
+      color: #04090c;
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      padding: 10px 26px;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      box-shadow: 0 0 20px var(--accent-glow);
+      transition: all var(--transition-fast);
+      text-decoration: none;
+    }
+
+    .btn-cyber:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 32px var(--accent-glow);
+      color: #000;
+    }
+
+    .btn-cyber-outline {
+      background: transparent;
+      color: #fff;
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      padding: 10px 24px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all var(--transition-fast);
+      text-decoration: none;
+    }
+
+    .btn-cyber-outline:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* Hero Telemetry HUD Panel */
+    .hero-hud {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      background: rgba(9, 16, 21, 0.9);
+      border: 1px solid var(--border-dim);
+    }
+
+    .hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-dim);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--accent);
+    }
+
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .telemetry-box {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid var(--border-dim);
+      padding: 14px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: border var(--transition-fast);
+    }
+    .telemetry-box:hover {
+      border-color: var(--accent);
+    }
+
+    .tele-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-dark);
+      text-transform: uppercase;
+    }
+
+    .tele-val {
+      font-family: var(--font-tech);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .tele-sub {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--accent);
+    }
+
+    .sys-log-box {
+      background: #020406;
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-sm);
+      padding: 14px;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      height: 130px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .log-line {
+      display: flex;
+      gap: 8px;
+    }
+    .log-ts { color: var(--text-dark); }
+    .log-ok { color: var(--neon-green); }
+    .log-info { color: var(--neon-cyan); }
+    .log-warn { color: var(--neon-amber); }
+
+    /* ==========================================================================
+       INTERACTIVE CYBER TERMINAL CLI (FULL EMULATION)
+       ========================================================================== */
+    .terminal-section {
+      margin-bottom: 60px;
+    }
+
+    .terminal-window {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #04080b;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 25px rgba(var(--accent-rgb), 0.08);
+    }
+
+    .terminal-header {
+      background: #0a131a;
+      padding: 10px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-dim);
+    }
+
+    .term-dots {
+      display: flex;
+      gap: 8px;
+    }
+    .term-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+    .term-dot.red { background: #ff5f56; }
+    .term-dot.yellow { background: #ffbd2e; }
+    .term-dot.green { background: #27c93f; }
+
+    .term-title {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .term-body {
+      padding: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      min-height: 280px;
+      max-height: 420px;
+      overflow-y: auto;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .term-output-history {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .term-prompt-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .term-prompt-symbol {
+      color: var(--accent);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .term-input {
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      width: 100%;
+      outline: none;
+      caret-color: var(--accent);
+    }
+
+    .term-chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px 20px;
+      background: #070d12;
+      border-top: 1px solid var(--border-dim);
+      align-items: center;
+    }
+
+    .term-chips-label {
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      color: var(--text-muted);
+    }
+
+    .term-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      padding: 3px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .term-chip:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
+
+    /* ==========================================================================
+       PROJECTS MATRIX SHOWCASE
+       ========================================================================== */
+    .projects-section {
+      margin-bottom: 70px;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: rgba(14, 25, 33, 0.7);
+      border: 1px solid var(--border-dim);
+      color: var(--text-muted);
+      padding: 8px 18px;
+      font-family: var(--font-tech);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      color: #fff;
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+      gap: 24px;
+    }
+
+    .project-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all var(--transition-smooth);
+      position: relative;
+    }
+
+    .project-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--accent);
+      box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6), 0 0 20px var(--accent-dim);
+    }
+
+    .project-header-bar {
+      padding: 12px 18px;
+      background: rgba(5, 10, 14, 0.7);
+      border-bottom: 1px solid var(--border-dim);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .project-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--neon-green);
+    }
+
+    .project-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+
+    .project-title {
+      font-size: 2rem;
+      color: #ffffff;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .project-desc {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+      flex-grow: 1;
+    }
+
+    .project-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 22px;
+    }
+
+    .tech-tag {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-dim);
+      color: var(--neon-cyan);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 2px;
+    }
+
+    .project-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-dim);
+    }
+
+    .project-link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-tech);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+    }
+
+    .project-link-btn:hover {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+      box-shadow: 0 0 14px var(--accent-glow);
+    }
+
+    /* ==========================================================================
+       SKILLS ARSENAL // SYSTEM DIAGNOSTICS
+       ========================================================================== */
+    .skills-section {
+      margin-bottom: 70px;
+    }
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .skill-card {
+      padding: 24px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-md);
+      position: relative;
+    }
+
+    .skill-category-title {
+      font-size: 1.8rem;
+      color: #fff;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .skill-bars-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .skill-bar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .skill-meta {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+
+    .skill-name { color: #d0e4ee; }
+    .skill-pct { color: var(--accent); font-weight: 700; }
+
+    .skill-track {
+      height: 6px;
+      background: #070e13;
+      border: 1px solid var(--border-dim);
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .skill-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--accent));
+      box-shadow: 0 0 8px var(--accent-glow);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* ==========================================================================
+       EXPERIENCE & DOSSIER TIMELINE
+       ========================================================================== */
+    .timeline-section {
+      margin-bottom: 70px;
+    }
+
+    .timeline-container {
+      position: relative;
+      padding-left: 32px;
+    }
+
+    .timeline-container::before {
+      content: '';
+      position: absolute;
+      left: 7px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--accent), var(--border-dim));
+    }
+
+    .timeline-node {
+      position: relative;
+      margin-bottom: 36px;
+    }
+
+    .node-dot {
+      position: absolute;
+      left: -32px;
+      top: 4px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #060b0e;
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    .node-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      padding: 22px 26px;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-smooth);
+    }
+    .node-card:hover {
+      border-color: var(--accent);
+      transform: translateX(6px);
+    }
+
+    .node-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .node-role {
+      font-size: 1.8rem;
+      color: #fff;
+    }
+
+    .node-period {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 3px 10px;
+      border-radius: 2px;
+      border: 1px solid var(--accent);
+    }
+
+    .node-company {
+      font-family: var(--font-tech);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--neon-cyan);
+      margin-bottom: 12px;
+    }
+
+    .node-details {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    /* ==========================================================================
+       ENCRYPTED TRANSMISSION // CONTACT COMMS
+       ========================================================================== */
+    .contact-section {
+      margin-bottom: 60px;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.3fr;
+      gap: 32px;
+    }
+
+    .comms-info {
+      padding: 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .comms-links {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .comm-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      transition: all var(--transition-fast);
+    }
+    .comm-item:hover {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      color: #fff;
+      transform: translateX(4px);
+    }
+
+    .comm-icon {
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+    }
+
+    .contact-form {
+      padding: 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .form-input, .form-textarea {
+      background: rgba(3, 7, 10, 0.7);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      color: #fff;
+      font-family: var(--font-tech);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border var(--transition-fast);
+    }
+
+    .form-input:focus, .form-textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-dim);
+    }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .transmission-status {
+      padding: 12px;
+      background: #04080a;
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      color: var(--neon-green);
+    }
+
+    /* ==========================================================================
+       FOOTER & TELEMETRY
+       ========================================================================== */
+    .os-footer {
+      border-top: 1px solid var(--border-dim);
+      padding: 30px 24px;
+      background: #04070a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      color: var(--text-dark);
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .footer-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .footer-signature {
+      color: var(--text-muted);
+    }
+
+    .footer-signature span {
+      color: var(--accent);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .hero-name { font-size: 3.8rem; }
+      .projects-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .os-topbar { padding: 0 14px; }
+      .topbar-nav { display: none; }
+      .system-status { display: none; }
+      .hero-name { font-size: 3rem; }
+      h2 { font-size: 2.2rem; }
+      .os-container { padding: 20px 14px 60px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Scanlines & CRT Ambiance -->
+  <div class="scanlines" id="scanlines-layer"></div>
+  <div class="vignette"></div>
+
+  <!-- Background Digital Matrix Canvas -->
+  <canvas id="matrix-canvas"></canvas>
+
+  <!-- ==========================================================================
+       TOP HUD STATUS BAR
+       ========================================================================== -->
+  <header class="os-topbar">
+    <div class="topbar-left">
+      <div class="os-brand">
+        <div class="os-brand-badge"></div>
+        <span>CYBER_OS</span>
+      </div>
+      <div class="system-status">
+        <div class="status-item">
+          <span class="dot-live"></span>
+          <span>KERNEL: v5.2-RELEASE</span>
+        </div>
+        <div class="status-item">
+          <span>PORT: 8080</span>
+        </div>
+        <div class="status-item">
+          <span id="os-clock">00:00:00 UTC</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="topbar-nav">
+      <a href="#about" class="nav-link active">01// ABOUT</a>
+      <a href="#terminal" class="nav-link">02// CLI_TERM</a>
+      <a href="#projects" class="nav-link">03// PROJECTS</a>
+      <a href="#skills" class="nav-link">04// ARSENAL</a>
+      <a href="#experience" class="nav-link">05// TIMELINE</a>
+      <a href="#contact" class="nav-link">06// COMMS</a>
+    </nav>
+
+    <!-- Top Right Controls: Theme Accent & Sound & CRT -->
+    <div class="topbar-right">
+      <div class="palette-toggle" title="Switch Theme Accent">
+        <button class="color-btn green" onclick="setThemeAccent('green')" title="Neon Green Accent"></button>
+        <button class="color-btn cyan" onclick="setThemeAccent('cyan')" title="Cyber Cyan Accent"></button>
+        <button class="color-btn amber" onclick="setThemeAccent('amber')" title="Amber Matrix Accent"></button>
+      </div>
+
+      <button class="btn-icon" id="btn-audio-toggle" onclick="toggleAudio()" title="Sound FX Synth Toggle">
+        <span id="audio-indicator">🔊 AUDIO: ON</span>
+      </button>
+
+      <button class="btn-icon" id="btn-scanlines-toggle" onclick="toggleScanlines()" title="Toggle Scanline Filter">
+        <span>CRT</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       MAIN OS INTERACTION SURFACE
+       ========================================================================== -->
+  <main class="os-container">
+
+    <!-- ==================== HERO SECTION ==================== -->
+    <section class="hero-grid" id="about">
+      <!-- Left: Identity & Clearance -->
+      <div class="cyber-card hero-main">
+        <div class="corner-decor tl"></div>
+        <div class="corner-decor tr"></div>
+        <div class="corner-decor bl"></div>
+        <div class="corner-decor br"></div>
+
+        <div>
+          <div class="hero-pretitle">
+            <span>● SYSTEM OPERATOR</span>
+            <span>CLEARANCE: LEVEL 5</span>
+          </div>
+
+          <h1 class="hero-name">ALEX CHEN</h1>
+
+          <div class="hero-title-typewriter">
+            <span>&gt; </span>
+            <span id="typewriter-text"></span>
+            <span class="cursor-blink"></span>
+          </div>
+
+          <p class="hero-desc">
+            Senior Full-Stack Architect &amp; Distributed Systems Specialist. Crafting high-throughput real-time architectures, intelligent RAG document cognitive agents, and cybernetic web interfaces.
+          </p>
+        </div>
+
+        <div class="hero-actions">
+          <a href="#projects" class="btn-cyber" onclick="playBeep(660, 0.08)">
+            <span>ACCESS PROJECTS</span>
+            <span>➔</span>
+          </a>
+          <a href="#terminal" class="btn-cyber-outline" onclick="playBeep(440, 0.06)">
+            <span>LAUNCH TERMINAL</span>
+            <span>&gt;_</span>
+          </a>
+          <a href="#contact" class="btn-cyber-outline" onclick="playBeep(520, 0.06)">
+            <span>INITIALIZE COMMS</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Right: Telemetry & Live Diagnostics HUD -->
+      <div class="cyber-card hero-hud">
+        <div class="corner-decor tl"></div>
+        <div class="corner-decor tr"></div>
+        <div class="corner-decor bl"></div>
+        <div class="corner-decor br"></div>
+
+        <div class="hud-header">
+          <span>// HARDWARE &amp; TELEMETRY HUD</span>
+          <span>ONLINE</span>
+        </div>
+
+        <div class="telemetry-grid">
+          <div class="telemetry-box">
+            <span class="tele-label">SYSTEM UPTIME</span>
+            <span class="tele-val" id="tele-uptime">99.99%</span>
+            <span class="tele-sub">FAULT TOLERANT</span>
+          </div>
+          <div class="telemetry-box">
+            <span class="tele-label">LIVE LATENCY</span>
+            <span class="tele-val">12 ms</span>
+            <span class="tele-sub">EDGE ROUTED</span>
+          </div>
+          <div class="telemetry-box">
+            <span class="tele-label">PROJECTS DEPLOYED</span>
+            <span class="tele-val">24+</span>
+            <span class="tele-sub">ENTERPRISE GRADE</span>
+          </div>
+          <div class="telemetry-box">
+            <span class="tele-label">CODE CLEARANCE</span>
+            <span class="tele-val">A+ SEC</span>
+            <span class="tele-sub">ZERO TRUST</span>
+          </div>
+        </div>
+
+        <div>
+          <div class="tele-label" style="margin-bottom: 6px;">KERNEL LOG STREAM:</div>
+          <div class="sys-log-box" id="sys-log-stream">
+            <div class="log-line"><span class="log-ts">[00:00:01]</span> <span class="log-ok">INIT</span> Cyber OS Core v5.2 started.</div>
+            <div class="log-line"><span class="log-ts">[00:00:02]</span> <span class="log-info">NET</span> WebSocket listener active on :8080.</div>
+            <div class="log-line"><span class="log-ts">[00:00:03]</span> <span class="log-ok">AUTH</span> Biometric &amp; RSA keys hydrated.</div>
+            <div class="log-line"><span class="log-ts">[00:00:04]</span> <span class="log-warn">MEM</span> Cache warm (28.4MB utilized).</div>
+            <div class="log-line"><span class="log-ts">[00:00:05]</span> <span class="log-ok">READY</span> All sub-systems nominal. Welcome operator.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== CLI TERMINAL EMULATOR ==================== -->
+    <section class="terminal-section" id="terminal">
+      <h2>
+        <span class="section-tag">[02]</span>
+        <span>INTERACTIVE SHELL TERMINAL</span>
+      </h2>
+
+      <div class="terminal-window">
+        <div class="terminal-header">
+          <div class="term-dots">
+            <span class="term-dot red"></span>
+            <span class="term-dot yellow"></span>
+            <span class="term-dot green"></span>
+          </div>
+          <div class="term-title">
+            <span>bash &mdash; guest@cyber-os:~</span>
+          </div>
+          <div class="term-title">UTF-8 // TTY1</div>
+        </div>
+
+        <div class="term-body" id="term-body" onclick="document.getElementById('term-input').focus()">
+          <div class="term-output-history" id="term-history">
+            <div>CYBER_OS Terminal Shell [Version 5.2.19]</div>
+            <div>(c) 2026 Alex Chen Systems. All rights reserved.</div>
+            <div style="color: var(--neon-cyan);">Type <b style="color: var(--accent);">'help'</b> to view available commands or click quick command chips below.</div>
+            <br>
+          </div>
+
+          <div class="term-prompt-line">
+            <span class="term-prompt-symbol">operator@nexus-os:~$</span>
+            <input type="text" id="term-input" class="term-input" autocomplete="off" spellcheck="false" placeholder="Type a command (e.g. help, skills, projects, cat resume.txt)...">
+          </div>
+        </div>
+
+        <div class="term-chips-row">
+          <span class="term-chips-label">QUICK MACROS:</span>
+          <button class="term-chip" onclick="executeMacro('help')">help</button>
+          <button class="term-chip" onclick="executeMacro('projects')">projects</button>
+          <button class="term-chip" onclick="executeMacro('skills')">skills</button>
+          <button class="term-chip" onclick="executeMacro('whoami')">whoami</button>
+          <button class="term-chip" onclick="executeMacro('cat resume.txt')">cat resume.txt</button>
+          <button class="term-chip" onclick="executeMacro('matrix')">matrix</button>
+          <button class="term-chip" onclick="executeMacro('clear')">clear</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== PROJECTS MATRIX ==================== -->
+    <section class="projects-section" id="projects">
+      <h2>
+        <span class="section-tag">[03]</span>
+        <span>ENGINEERED REPOSITORIES &amp; DEPLOYMENTS</span>
+      </h2>
+
+      <!-- Filter Controls -->
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterProjects('all', this)">ALL ARCHITECTURES</button>
+        <button class="filter-btn" onclick="filterProjects('fullstack', this)">FULL-STACK &amp; REALTIME</button>
+        <button class="filter-btn" onclick="filterProjects('ai', this)">AI &amp; RAG SYSTEMS</button>
+        <button class="filter-btn" onclick="filterProjects('systems', this)">DISTRIBUTED SYSTEMS</button>
+      </div>
+
+      <div class="projects-grid" id="projects-grid">
+
+        <!-- Project 1: PulseVote -->
+        <article class="project-card" data-category="fullstack systems">
+          <div class="corner-decor tl"></div>
+          <div class="corner-decor tr"></div>
+          <div class="project-header-bar">
+            <span>SYS_REF: PV-01</span>
+            <div class="project-status">
+              <span class="dot-live"></span>
+              <span>LIVE DEPLOYMENT</span>
+            </div>
+          </div>
+          <div class="project-body">
+            <h3 class="project-title">
+              <span>PULSEVOTE STUDIO</span>
+              <span style="font-size: 1.2rem; color: var(--accent);">⚡</span>
+            </h3>
+            <p class="project-desc">
+              High-concurrency live polling studio built with React, Go (Gin), Redis Pub/Sub, and WebSockets. Broadcasts live vote mutations and animated audience reaction telemetry with microsecond latency.
+            </p>
+            <div class="project-tags">
+              <span class="tech-tag">GO / GIN</span>
+              <span class="tech-tag">REDIS PUB/SUB</span>
+              <span class="tech-tag">WEBSOCKETS</span>
+              <span class="tech-tag">REACT 18</span>
+              <span class="tech-tag">MONGODB</span>
+            </div>
+            <div class="project-footer">
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--text-dark);">0.8ms VOTE TICK</span>
+              <a href="http://localhost:5173" target="_blank" class="project-link-btn" onclick="playBeep(880, 0.05)">
+                <span>LAUNCH APP</span>
+                <span>↗</span>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Project 2: DocuChat RAG -->
+        <article class="project-card" data-category="ai fullstack">
+          <div class="corner-decor tl"></div>
+          <div class="corner-decor tr"></div>
+          <div class="project-header-bar">
+            <span>SYS_REF: DC-02</span>
+            <div class="project-status">
+              <span class="dot-live"></span>
+              <span>LIVE SYSTEM</span>
+            </div>
+          </div>
+          <div class="project-body">
+            <h3 class="project-title">
+              <span>DOCUCHAT RAG &amp; VOICE</span>
+              <span style="font-size: 1.2rem; color: var(--neon-cyan);">🎙️</span>
+            </h3>
+            <p class="project-desc">
+              Intelligent Retrieval-Augmented Generation agent with voice synthesis (Fable 3.5 &amp; Gemini 3.5). Features automated PDF/DOCX chunking, semantic cosine vector matching, and multilingual audio output.
+            </p>
+            <div class="project-tags">
+              <span class="tech-tag">GEMINI 3.5</span>
+              <span class="tech-tag">FABLE VOICE</span>
+              <span class="tech-tag">RAG PIPELINE</span>
+              <span class="tech-tag">PYTHON / NODE</span>
+              <span class="tech-tag">VECTOR DB</span>
+            </div>
+            <div class="project-footer">
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--text-dark);">GROUNDED ACCURACY</span>
+              <a href="http://localhost:3000" target="_blank" class="project-link-btn" onclick="playBeep(880, 0.05)">
+                <span>OPEN AGENT</span>
+                <span>↗</span>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Project 3: Cloud Sentinel -->
+        <article class="project-card" data-category="systems">
+          <div class="corner-decor tl"></div>
+          <div class="corner-decor tr"></div>
+          <div class="project-header-bar">
+            <span>SYS_REF: CS-03</span>
+            <div class="project-status">
+              <span class="dot-live"></span>
+              <span>ACTIVE DAEMON</span>
+            </div>
+          </div>
+          <div class="project-body">
+            <h3 class="project-title">
+              <span>CLOUD SENTINEL MESH</span>
+              <span style="font-size: 1.2rem; color: var(--neon-amber);">🛡️</span>
+            </h3>
+            <p class="project-desc">
+              Zero-Trust microservice mesh monitor &amp; anomaly detector. Inspects ingress TLS traffic, enforces rate limiting algorithms, and exposes real-time eBPF network telemetry metrics.
+            </p>
+            <div class="project-tags">
+              <span class="tech-tag">RUST</span>
+              <span class="tech-tag">EBPF</span>
+              <span class="tech-tag">DOCKER</span>
+              <span class="tech-tag">GRAFANA</span>
+              <span class="tech-tag">ZERO TRUST</span>
+            </div>
+            <div class="project-footer">
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--text-dark);">0.001% LOSS</span>
+              <a href="#terminal" class="project-link-btn" onclick="executeMacro('cat resume.txt')">
+                <span>INSPECT SPECS</span>
+                <span>➔</span>
+              </a>
+            </div>
+          </div>
+        </article>
+
+        <!-- Project 4: Neural Canvas -->
+        <article class="project-card" data-category="ai">
+          <div class="corner-decor tl"></div>
+          <div class="corner-decor tr"></div>
+          <div class="project-header-bar">
+            <span>SYS_REF: NC-04</span>
+            <div class="project-status">
+              <span class="dot-live"></span>
+              <span>EXPERIMENTAL</span>
+            </div>
+          </div>
+          <div class="project-body">
+            <h3 class="project-title">
+              <span>NEURAL KERNEL VISION</span>
+              <span style="font-size: 1.2rem; color: var(--neon-green);">👁️</span>
+            </h3>
+            <p class="project-desc">
+              Client-side WebGL &amp; WebGPU neural tensor execution playground. Performs real-time object classification and edge optical tracking directly inside browser threads with WebAssembly.
+            </p>
+            <div class="project-tags">
+              <span class="tech-tag">WEBGPU</span>
+              <span class="tech-tag">TENSORFLOW.JS</span>
+              <span class="tech-tag">WASM</span>
+              <span class="tech-tag">SHADERS</span>
+            </div>
+            <div class="project-footer">
+              <span class="font-mono" style="font-size: 0.75rem; color: var(--text-dark);">60 FPS HARDWARE ACCEL</span>
+              <a href="#terminal" class="project-link-btn" onclick="executeMacro('skills')">
+                <span>VIEW ARSENAL</span>
+                <span>➔</span>
+              </a>
+            </div>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- ==================== SKILLS ARSENAL ==================== -->
+    <section class="skills-section" id="skills">
+      <h2>
+        <span class="section-tag">[04]</span>
+        <span>TECHNICAL ARSENAL &amp; CAPABILITIES</span>
+      </h2>
+
+      <div class="skills-grid">
+
+        <!-- Category 1: Backend & Distributed Systems -->
+        <div class="skill-card">
+          <div class="corner-decor tl"></div>
+          <div class="corner-decor tr"></div>
+          <h3 class="skill-category-title">
+            <span style="color: var(--accent);">01/</span>
+            <span>BACKEND &amp; DISTRIBUTED</span>
+          </h3>
+          <div class="skill-bars-list">
+            <div class="skill-bar-item">
+              <div class="skill-meta">
+                <span class="skill-name">Go (Golang) / Gin / Concurrency</span>
+                <span class="skill-pct">95%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="width: 95%;"></div></div>
+            </div>
+            <div class="skill-bar-item">
+              <div class="skill-meta">
+                <span class="skill-name">Node.js / Express / Async I/O</span>
+                <span class="skill-pct">94%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="width: 94%;"></div></div>
+            </div>
+            <div class="skill-bar-item">
+              <div class="skill-meta">
+                <span class="skill-name">Redis (Pub/Sub, Caching, Streams)</span>
+                <span class="skill-pct">92%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="width: 92%;"></div></div>
+            </div>
+            <div class="skill-bar-item">
+              <div class="skill-meta">
+                <span class="skill-name">PostgreSQL / MongoDB / Vector DBs</span>
+                <span class="skill-pct">90%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="width: 90%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category 2: Frontend & Realtime UI -->
+        <div class="skill-card">
+          <div class="corner-decor tl"></div>
+          <div class="corner-decor tr"></div>
+          <h3 class="skill-category-title">
+            <span style="color: var(--neon-cyan);">02/</span>
+            <span>FRONTEND &amp; INTERFACES</span>
+          </h3>
+          <div class="skill-bars-list">
+            <div class="skill-bar-item">
+              <div class="skill-meta">
+                <span class="skill-name">React 18 / Next.js / Hooks</span>
+                <span class="skill-pct">96%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="width: 96%;"></div></div>
+            </div>
+            <div class="skill-bar-item">
+              <div class="skill-meta">
+                <span class="skill-name">Vanilla CSS / Modern Typography / Canvas</span>
+                <span class="skill-pct">98%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="width: 98%;"></div></div>
+            </div>
+            <div class="skill-bar-item">
+              <div class="skill-meta">
+                <span class="skill-name">WebSockets / WebRTC / Web Audio API</span>
+                <span class="skill-pct">91%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="width: 91%;"></div></div>
+            </div>
+            <div class="skill-bar-item">
+              <div class="skill-meta">
+                <span class="skill-name">TypeScript / ESNext Architecture</span>
+                <span class="skill-pct">93%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="width: 93%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Category 3: AI & Security -->
+        <div class="skill-card">
+          <div class="corner-decor tl"></div>
+          <div class="corner-decor tr"></div>
+          <h3 class="skill-category-title">
+            <span style="color: var(--neon-amber);">03/</span>
+            <span>AI, RAG &amp; SECURITY</span>
+          </h3>
+          <div class="skill-bars-list">
+            <div class="skill-bar-item">
+              <div class="skill-meta">
+                <span class="skill-name">RAG (Retrieval Augmented Gen)</span>
+                <span class="skill-pct">94%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="width: 94%;"></div></div>
+            </div>
+            <div class="skill-bar-item">
+              <div class="skill-meta">
+                <span class="skill-name">LLM Integration (Gemini, Claude, GPT)</span>
+                <span class="skill-pct">96%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="width: 96%;"></div></div>
+            </div>
+            <div class="skill-bar-item">
+              <div class="skill-meta">
+                <span class="skill-name">Docker / Linux Kernel / Cloudflare Tunnels</span>
+                <span class="skill-pct">89%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="width: 89%;"></div></div>
+            </div>
+            <div class="skill-bar-item">
+              <div class="skill-meta">
+                <span class="skill-name">Zero-Trust &amp; JWT Cryptography</span>
+                <span class="skill-pct">92%</span>
+              </div>
+              <div class="skill-track"><div class="skill-fill" style="width: 92%;"></div></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== TIMELINE / DOSSIER ==================== -->
+    <section class="timeline-section" id="experience">
+      <h2>
+        <span class="section-tag">[05]</span>
+        <span>DEPLOYMENT &amp; WORK CHRONOLOGY</span>
+      </h2>
+
+      <div class="timeline-container">
+
+        <!-- Role 1 -->
+        <div class="timeline-node">
+          <div class="node-dot"></div>
+          <div class="node-card">
+            <div class="node-header">
+              <h3 class="node-role">LEAD SYSTEMS ARCHITECT</h3>
+              <span class="node-period">2024 &mdash; PRESENT</span>
+            </div>
+            <div class="node-company">NEXUS LABS &bull; REAL-TIME CLOUD DIVISION</div>
+            <p class="node-details">
+              Spearheaded distributed microservices servicing over 1.2M concurrent WebSocket streams. Architected sub-millisecond Redis caching layers, cut compute costs by 42%, and orchestrated end-to-end multi-tenant RAG pipelines.
+            </p>
+          </div>
+        </div>
+
+        <!-- Role 2 -->
+        <div class="timeline-node">
+          <div class="node-dot"></div>
+          <div class="node-card">
+            <div class="node-header">
+              <h3 class="node-role">SENIOR FULL-STACK ENGINEER</h3>
+              <span class="node-period">2022 &mdash; 2024</span>
+            </div>
+            <div class="node-company">QUANTUM INTERACTIVE &bull; CORE PLATFORM</div>
+            <p class="node-details">
+              Engineered ultra-responsive web dashboards with React and Go. Integrated WebGL telemetry visualizers, automated CI/CD container clusters with Docker and Kubernetes, and audited cryptographic security endpoints.
+            </p>
+          </div>
+        </div>
+
+        <!-- Role 3 -->
+        <div class="timeline-node">
+          <div class="node-dot"></div>
+          <div class="node-card">
+            <div class="node-header">
+              <h3 class="node-role">SYSTEMS DEVELOPER</h3>
+              <span class="node-period">2020 &mdash; 2022</span>
+            </div>
+            <div class="node-company">SYNAPSE NETWORK &bull; INFRASTRUCTURE</div>
+            <p class="node-details">
+              Maintained high-throughput REST and WebSocket backends, designed relational schema models for PostgreSQL, and built developer tooling utilities.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ==================== CONTACT / TRANSMISSION ==================== -->
+    <section class="contact-section" id="contact">
+      <h2>
+        <span class="section-tag">[06]</span>
+        <span>INITIALIZE ENCRYPTED TRANSMISSION</span>
+      </h2>
+
+      <div class="contact-grid">
+        <!-- Comms Info -->
+        <div class="comms-info">
+          <div>
+            <h3 style="font-size: 2.2rem; color: #fff; margin-bottom: 12px;">DIRECT FREQUENCIES</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">
+              Ready to construct game-changing software? Drop a secured transmission or connect through standard developer frequencies below.
+            </p>
+
+            <div class="comms-links">
+              <a href="mailto:alexchen.dev@nexus-os.io" class="comm-item" onclick="playBeep(700, 0.05)">
+                <span class="comm-icon">✉</span>
+                <div>
+                  <div style="font-size: 0.72rem; color: var(--text-dark); font-family: var(--font-mono);">ENCRYPTED MAIL</div>
+                  <div style="font-weight: 600;">alexchen.dev@nexus-os.io</div>
+                </div>
+              </a>
+
+              <a href="https://github.com" target="_blank" class="comm-item" onclick="playBeep(700, 0.05)">
+                <span class="comm-icon">⌥</span>
+                <div>
+                  <div style="font-size: 0.72rem; color: var(--text-dark); font-family: var(--font-mono);">SOURCE CODE HUB</div>
+                  <div style="font-weight: 600;">github.com/alexchen-cyber</div>
+                </div>
+              </a>
+
+              <a href="https://linkedin.com" target="_blank" class="comm-item" onclick="playBeep(700, 0.05)">
+                <span class="comm-icon">◈</span>
+                <div>
+                  <div style="font-size: 0.72rem; color: var(--text-dark); font-family: var(--font-mono);">PROFESSIONAL NETWORK</div>
+                  <div style="font-weight: 600;">linkedin.com/in/alexchen-dev</div>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-dark); margin-top: 24px;">
+            <span>PGP KEY FINGERPRINT: 4A8B 91D0 E22C 8F10 A920</span>
+          </div>
+        </div>
+
+        <!-- Transmission Form -->
+        <form class="contact-form" id="contact-form" onsubmit="handleFormSubmit(event)">
+          <div class="form-group">
+            <label class="form-label">OPERATOR CALLSIGN / NAME:</label>
+            <input type="text" id="form-name" class="form-input" placeholder="e.g. Neo or John Doe" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">RETURN FREQUENCY / EMAIL:</label>
+            <input type="email" id="form-email" class="form-input" placeholder="e.g. operator@company.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">CLEARANCE / SUBJECT:</label>
+            <input type="text" id="form-subject" class="form-input" placeholder="e.g. Architecture Consultation / New Project" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">PAYLOAD / TRANSMISSION BODY:</label>
+            <textarea id="form-message" class="form-textarea" placeholder="Input encrypted mission details or inquiry..." required></textarea>
+          </div>
+
+          <div class="transmission-status" id="form-status">
+            <span class="dot-live"></span>
+            <span id="form-status-text">TRANSMITTING PACKETS...</span>
+          </div>
+
+          <button type="submit" class="btn-cyber" id="btn-submit-comms">
+            <span>TRANSMIT PACKET</span>
+            <span>📡</span>
+          </button>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       FOOTER & TELEMETRY
+       ========================================================================== -->
+  <footer class="os-footer">
+    <div class="footer-left">
+      <div class="status-item">
+        <span class="dot-live"></span>
+        <span>CYBER_OS v5.2 ACTIVE</span>
+      </div>
+      <span>&bull;</span>
+      <span>MEMORY: 128MB ALLOCATED</span>
+      <span>&bull;</span>
+      <span>NODE: ASIA-SOUTH-1</span>
+    </div>
+
+    <div class="footer-signature">
+      DESIGNED WITH <span>CYBERPUNK PRECISION</span> &bull; 2026
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       INTERACTIVE AUDIO SYNTHESIZER & SCRIPT ENGINE
+       ========================================================================== -->
+  <script>
+    /* --------------------------------------------------------------------------
+       1. WEB AUDIO API SYNTHESIZER (ZERO EXTERNAL SOUND ASSETS)
+       -------------------------------------------------------------------------- */
+    let audioCtx = null;
+    let audioEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx && (window.AudioContext || window.webkitAudioContext)) {
+        const AudioClass = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AudioClass();
+      }
+    }
+
+    function playBeep(freq = 440, duration = 0.08, type = 'sine', gainVal = 0.05) {
+      if (!audioEnabled) return;
+      initAudio();
+      if (!audioCtx) return;
+
+      try {
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        // Fallback silently if browser blocks audio
+      }
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      const indicator = document.getElementById('audio-indicator');
+      if (indicator) {
+        indicator.textContent = audioEnabled ? '🔊 AUDIO: ON' : '🔇 AUDIO: OFF';
+      }
+      if (audioEnabled) {
+        playBeep(880, 0.1, 'triangle', 0.08);
+      }
+    }
+
+    function toggleScanlines() {
+      const el = document.getElementById('scanlines-layer');
+      if (el) {
+        el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        playBeep(520, 0.05);
+      }
+    }
+
+    /* --------------------------------------------------------------------------
+       2. THEME ACCENT SWITCHER (Green / Cyan / Amber)
+       -------------------------------------------------------------------------- */
+    function setThemeAccent(accent) {
+      document.documentElement.setAttribute('data-accent', accent);
+      localStorage.setItem('cyber-os-accent', accent);
+      playBeep(accent === 'green' ? 520 : accent === 'cyan' ? 660 : 440, 0.08, 'triangle');
+    }
+
+    const savedAccent = localStorage.getItem('cyber-os-accent') || 'green';
+    document.documentElement.setAttribute('data-accent', savedAccent);
+
+    /* --------------------------------------------------------------------------
+       3. TYPEWRITER EFFECT
+       -------------------------------------------------------------------------- */
+    const phrases = [
+      'FULL-STACK ENGINEER & DISTRIBUTED SYSTEMS',
+      'AI & MULTI-AGENT RAG ARCHITECT',
+      'HIGH-CONCURRENCY REALTIME DEVELOPER',
+      'ZERO-TRUST SYSTEM HARDENER'
+    ];
+    let phraseIndex = 0;
+    let charIndex = 0;
+    let isDeleting = false;
+    const typewriterEl = document.getElementById('typewriter-text');
+
+    function typeLoop() {
+      const current = phrases[phraseIndex];
+      if (isDeleting) {
+        charIndex--;
+      } else {
+        charIndex++;
+      }
+
+      typewriterEl.textContent = current.substring(0, charIndex);
+
+      let speed = isDeleting ? 30 : 65;
+      if (!isDeleting && charIndex === current.length) {
+        speed = 2200;
+        isDeleting = true;
+      } else if (isDeleting && charIndex === 0) {
+        isDeleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        speed = 400;
+      }
+
+      setTimeout(typeLoop, speed);
+    }
+    typeLoop();
+
+    /* --------------------------------------------------------------------------
+       4. DIGITAL MATRIX RAIN CANVAS
+       -------------------------------------------------------------------------- */
+    const canvas = document.getElementById('matrix-canvas');
+    const ctx = canvas.getContext('2d');
+    let matrixRunning = true;
+
+    function resizeMatrix() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeMatrix();
+    window.addEventListener('resize', resizeMatrix);
+
+    const chars = '0123456789ABCDEFｦｱｳｴｵｶｷｹｺｻｼｽｾｿﾀﾂﾃﾅﾆﾇﾈﾊﾋﾎﾏﾐﾑﾒﾓﾔﾕﾗﾘﾜ';
+    const fontSize = 14;
+    let columns = Math.floor(canvas.width / fontSize);
+    let drops = Array(columns).fill(1);
+
+    function drawMatrix() {
+      if (!matrixRunning) return;
+      ctx.fillStyle = 'rgba(3, 6, 8, 0.08)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const accent = document.documentElement.getAttribute('data-accent') || 'green';
+      ctx.fillStyle = accent === 'cyan' ? '#00f0ff' : accent === 'amber' ? '#ffaa00' : '#00ff66';
+      ctx.font = `${fontSize}px 'JetBrains Mono', monospace`;
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = chars[Math.floor(Math.random() * chars.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+      requestAnimationFrame(drawMatrix);
+    }
+    requestAnimationFrame(drawMatrix);
+
+    /* --------------------------------------------------------------------------
+       5. INTERACTIVE TERMINAL EMULATOR
+       -------------------------------------------------------------------------- */
+    const termInput = document.getElementById('term-input');
+    const termHistory = document.getElementById('term-history');
+    const termBody = document.getElementById('term-body');
+
+    const commands = {
+      help: () => `
+        <div style="color: var(--neon-cyan);">AVAILABLE OPERATOR COMMANDS:</div>
+        <div style="padding-left: 12px; display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
+          <div><b style="color: var(--accent);">projects</b>     - List major engineering deployments</div>
+          <div><b style="color: var(--accent);">skills</b>       - Inspect system capabilities &amp; tech arsenal</div>
+          <div><b style="color: var(--accent);">whoami</b>       - Display operator identity dossier</div>
+          <div><b style="color: var(--accent);">cat resume.txt</b>- Print condensed plain-text resume</div>
+          <div><b style="color: var(--accent);">contact</b>      - Transmit comms packet / view direct channels</div>
+          <div><b style="color: var(--accent);">matrix</b>       - Toggle background matrix rain stream</div>
+          <div><b style="color: var(--accent);">theme &lt;color&gt;</b> - Set accent: 'green', 'cyan', or 'amber'</div>
+          <div><b style="color: var(--accent);">clear</b>        - Wipe console screen buffer</div>
+        </div>
+      `,
+      whoami: () => `
+        <div style="color: #fff;">
+          <b>OPERATOR:</b> Alex Chen<br>
+          <b>TITLE:</b> Senior Full-Stack &amp; Distributed Systems Architect<br>
+          <b>CORE:</b> Go, Node.js, React, Redis, WebSockets, Python, RAG Pipelines<br>
+          <b>STATUS:</b> Available for high-impact roles &amp; consulting
+        </div>
+      `,
+      projects: () => `
+        <div style="color: var(--neon-cyan);">INDEXED REPOSITORIES:</div>
+        <div style="padding-left: 12px; margin-top: 4px;">
+          <div><b>1. PulseVote Studio:</b> Realtime live polling with Go, Redis Pub/Sub, WebSockets &amp; React.</div>
+          <div><b>2. DocuChat RAG:</b> Semantic vector document chat with Gemini 3.5 and Fable voice synthesis.</div>
+          <div><b>3. Cloud Sentinel Mesh:</b> Rust + eBPF Zero-Trust traffic telemetry monitor.</div>
+          <div><b>4. Neural Kernel Vision:</b> Client-side WebGPU edge computer vision playground.</div>
+        </div>
+      `,
+      skills: () => `
+        <div style="color: var(--accent);">TECH ARSENAL SPECIFICATION:</div>
+        <div style="padding-left: 12px; margin-top: 4px;">
+          <div>&bull; <b>Languages:</b> Go, JavaScript/TypeScript, Python, Rust, SQL, HTML/CSS</div>
+          <div>&bull; <b>Frameworks:</b> React, Next.js, Gin, Express, Fastify</div>
+          <div>&bull; <b>Realtime:</b> WebSockets, Redis Pub/Sub, WebRTC, Server-Sent Events</div>
+          <div>&bull; <b>Data &amp; AI:</b> PostgreSQL, MongoDB, Redis, ChromaDB, Gemini 3.5, LangChain</div>
+        </div>
+      `,
+      'cat resume.txt': () => `
+        <div style="background: rgba(0,0,0,0.5); padding: 10px; border-left: 3px solid var(--accent);">
+          =======================================================<br>
+          ALEX CHEN &mdash; LEAD FULL-STACK ARCHITECT<br>
+          Contact: alexchen.dev@nexus-os.io | GitHub: @alexchen-cyber<br>
+          =======================================================<br>
+          EXPERIENCE:<br>
+          - Nexus Labs (2024-Present): Distributed WebSocket architecture (1.2M conn).<br>
+          - Quantum Interactive (2022-2024): Go / React Core Platform scaling.<br>
+          - Synapse Network (2020-2022): Backend infrastructure &amp; database design.<br>
+          EDUCATION: B.S. Computer Science &amp; Distributed Engineering
+        </div>
+      `,
+      contact: () => `
+        <div>Direct link frequency: <a href="mailto:alexchen.dev@nexus-os.io" style="color: var(--accent);">alexchen.dev@nexus-os.io</a></div>
+        <div>Or complete transmission form at the base of this dossier.</div>
+      `,
+      matrix: () => {
+        matrixRunning = !matrixRunning;
+        if (matrixRunning) requestAnimationFrame(drawMatrix);
+        return `<div>Matrix visual stream: <b>${matrixRunning ? 'ACTIVATED' : 'PAUSED'}</b></div>`;
+      },
+      clear: () => {
+        termHistory.innerHTML = '';
+        return '';
+      }
+    };
+
+    if (termInput) {
+      termInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          const raw = termInput.value.trim();
+          if (!raw) return;
+          processCommand(raw);
+          termInput.value = '';
+          playBeep(480, 0.04);
+        }
+      });
+    }
+
+    function processCommand(cmdLine) {
+      const entry = document.createElement('div');
+      entry.innerHTML = `<span style="color: var(--accent); font-weight:700;">operator@nexus-os:~$</span> <span>${escapeHtml(cmdLine)}</span>`;
+      termHistory.appendChild(entry);
+
+      const trimmed = cmdLine.toLowerCase();
+      let response = '';
+
+      if (trimmed.startsWith('theme ')) {
+        const col = trimmed.replace('theme ', '').trim();
+        if (['green', 'cyan', 'amber'].includes(col)) {
+          setThemeAccent(col);
+          response = `<div>Theme accent updated to: <b style="color: var(--accent);">${col}</b></div>`;
+        } else {
+          response = `<div>Invalid theme. Choose: green, cyan, amber</div>`;
+        }
+      } else if (commands[trimmed]) {
+        response = commands[trimmed]();
+      } else {
+        response = `<div style="color: var(--neon-red);">Command not recognized: '${escapeHtml(cmdLine)}'. Type 'help' for command list.</div>`;
+      }
+
+      if (response) {
+        const respEl = document.createElement('div');
+        respEl.innerHTML = response;
+        termHistory.appendChild(respEl);
+      }
+
+      termBody.scrollTop = termBody.scrollHeight;
+    }
+
+    function executeMacro(cmd) {
+      if (termInput) {
+        termInput.value = cmd;
+        processCommand(cmd);
+        termInput.value = '';
+        playBeep(580, 0.05);
+      }
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    /* --------------------------------------------------------------------------
+       6. PROJECT FILTERING
+       -------------------------------------------------------------------------- */
+    function filterProjects(cat, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      playBeep(520, 0.05);
+
+      const cards = document.querySelectorAll('.project-card');
+      cards.forEach(card => {
+        const cardCats = card.getAttribute('data-category') || '';
+        if (cat === 'all' || cardCats.includes(cat)) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+
+    /* --------------------------------------------------------------------------
+       7. CONTACT FORM TRANSMISSION SIMULATION
+       -------------------------------------------------------------------------- */
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const statusBox = document.getElementById('form-status');
+      const statusText = document.getElementById('form-status-text');
+      const btn = document.getElementById('btn-submit-comms');
+
+      playBeep(700, 0.12, 'square');
+      statusBox.style.display = 'flex';
+      statusText.textContent = 'ENCRYPTING PACKETS WITH 4096-BIT RSA...';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        statusText.textContent = 'ROUTING THROUGH ZERO-TRUST SATELLITE NODE...';
+        playBeep(880, 0.1);
+      }, 900);
+
+      setTimeout(() => {
+        statusText.innerHTML = 'TRANSMISSION RECEIVED &bull; OPERATOR ACKNOWLEDGED [ACK 200]';
+        playBeep(1040, 0.18, 'sine');
+        document.getElementById('contact-form').reset();
+        btn.disabled = false;
+      }, 2100);
+    }
+
+    /* --------------------------------------------------------------------------
+       8. LIVE CLOCK HUD & KERNEL LOG TICKER
+       -------------------------------------------------------------------------- */
+    function updateClock() {
+      const now = new Date();
+      const clockEl = document.getElementById('os-clock');
+      if (clockEl) {
+        clockEl.textContent = now.toTimeString().split(' ')[0] + ' UTC';
+      }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+  </script>
+</body>
+</html>

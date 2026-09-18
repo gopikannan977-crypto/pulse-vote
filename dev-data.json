@@ -1,0 +1,95 @@
+{
+  "users": [
+    {
+      "id": "a3591cd5290daf046ac1a431",
+      "email": "demo@pulsevote.io",
+      "passwordHash": "34389e028f937b6ce87b696e85785b393d7084d5de3c2c2e9f9e1b69b958999f",
+      "createdAt": "2026-09-17T15:19:46.790Z"
+    },
+    {
+      "id": "4fe67083bbe529dbb2650e76",
+      "email": "user.test@gmail.com",
+      "name": "user.test",
+      "provider": "google",
+      "passwordHash": "9e782b5f919892daa8aa9dc648c581f211c9cf9c7953e17b6e32722533a77ed7",
+      "createdAt": "2026-09-17T16:25:38.952Z"
+    },
+    {
+      "id": "fc6af96bb470ddc6584d1aaf",
+      "email": "gopimani0804@gmail.com",
+      "name": "gopimani0804",
+      "provider": "google",
+      "passwordHash": "80df3bfc67ff02b51addf817ba1f6087c612ec23631adc8f78a2b333aad0ce23",
+      "createdAt": "2026-09-17T16:28:10.706Z"
+    }
+  ],
+  "polls": [
+    {
+      "id": "c22f1e768d35332e42e609f7",
+      "ownerId": "a3591cd5290daf046ac1a431",
+      "question": "What feature should we build next in PulseVote?",
+      "options": [
+        {
+          "id": "opt-1",
+          "text": "AI-Powered Poll Suggestions 🤖"
+        },
+        {
+          "id": "opt-2",
+          "text": "Audience Q&A & Upvoting 💬"
+        },
+        {
+          "id": "opt-3",
+          "text": "Export Results as PDF/CSV 📊"
+        },
+        {
+          "id": "opt-4",
+          "text": "Custom Themes & Branding 🎨"
+        }
+      ],
+      "status": "open",
+      "createdAt": "2026-09-17T15:19:46.790Z",
+      "updatedAt": "2026-09-17T15:19:46.790Z"
+    },
+    {
+      "id": "8e38a66ca082472b0e15c843",
+      "ownerId": "fc6af96bb470ddc6584d1aaf",
+      "question": "whats your fovitore food",
+      "options": [
+        {
+          "id": "d53db9dae9e434154d0c23a8",
+          "text": "briyani"
+        },
+        {
+          "id": "6631538086add9c0144ee8b4",
+          "text": "chicken rice"
+        }
+      ],
+      "status": "open",
+      "createdAt": "2026-09-17T16:29:34.357Z",
+      "updatedAt": "2026-09-17T16:29:34.357Z"
+    }
+  ],
+  "votes": [
+    {
+      "id": "2f9a63c20aab1687c4d4cb3d",
+      "pollId": "8e38a66ca082472b0e15c843",
+      "optionId": "d53db9dae9e434154d0c23a8",
+      "voterId": "b8c9dfc8cf664c3fbe170b42ea1c8b38224b2fd7deda9618",
+      "createdAt": "2026-09-17T16:29:41.822Z"
+    },
+    {
+      "id": "081910814bd9deac6b76246d",
+      "pollId": "c22f1e768d35332e42e609f7",
+      "optionId": "opt-3",
+      "voterId": "c362d3259100f0d71605739a08e274782bfc9607cd674f5e",
+      "createdAt": "2026-09-17T17:30:00.934Z"
+    },
+    {
+      "id": "7762bb25579a8d67526b3a04",
+      "pollId": "c22f1e768d35332e42e609f7",
+      "optionId": "opt-1",
+      "voterId": "42ad8b6771aa6efc6b9ec739ab6a7878b1e3de01c8d6c26e",
+      "createdAt": "2026-09-18T11:39:22.220Z"
+    }
+  ]
+}
